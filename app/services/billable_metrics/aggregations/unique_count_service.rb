@@ -11,6 +11,7 @@ module BillableMetrics
         result.instant_aggregation = BigDecimal(compute_instant_aggregation(events))
         result.options = { running_total: running_total(options) }
         result.count = events.count
+        result.events = events.pluck(Arel.sql("(#{sanitized_field_name})::numeric"))
         result
       end
 

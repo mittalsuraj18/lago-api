@@ -42,6 +42,8 @@ module Charges
                           Charges::ChargeModels::PackageService
                         when :percentage
                           Charges::ChargeModels::PercentageService
+                        when :flexible
+                          Charges::ChargeModels::FlexibleService
                         else
                           raise(NotImplementedError)
       end

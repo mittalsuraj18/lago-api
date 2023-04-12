@@ -158,6 +158,7 @@ enum ChargeModelEnum {
   percentage
   standard
   volume
+  flexible
 }
 
 type ChargeUsage {

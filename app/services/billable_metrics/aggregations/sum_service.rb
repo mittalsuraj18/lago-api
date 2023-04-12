@@ -11,6 +11,7 @@ module BillableMetrics
         result.instant_aggregation = BigDecimal(compute_instant_aggregation)
         result.count = events.count
         result.options = { running_total: running_total(events, options) }
+        result.events = events.pluck(Arel.sql("(#{sanitized_field_name})::numeric"))
         result
       rescue ActiveRecord::StatementInvalid => e
         result.service_failure!(code: 'aggregation_failure', message: e.message)

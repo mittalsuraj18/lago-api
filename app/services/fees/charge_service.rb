@@ -140,6 +140,8 @@ module Fees
                         Charges::ChargeModels::PercentageService
                       when :volume
                         Charges::ChargeModels::VolumeService
+                      when :flexible
+                        Charges::ChargeModels::FlexibleService
                       else
                         raise(NotImplementedError)
       end
