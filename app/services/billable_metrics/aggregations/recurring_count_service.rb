@@ -10,6 +10,7 @@ module BillableMetrics
         result.aggregation = compute_aggregation.ceil(5)
         result.count = result.aggregation
         result.options = options
+        result.events = events.pluck(Arel.sql("(#{sanitized_field_name})::numeric"))
         result
       end
 

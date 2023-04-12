@@ -10,6 +10,7 @@ module BillableMetrics
         result.aggregation = events.sum("(#{sanitized_field_name})::numeric")
         result.count = events.count
         result.options = { running_total: running_total(events, options) }
+        result.events = events.pluck(Arel.sql("(#{sanitized_field_name})::numeric"))
         result
       rescue ActiveRecord::StatementInvalid => e
         result.service_failure!(code: 'aggregation_failure', message: e.message)

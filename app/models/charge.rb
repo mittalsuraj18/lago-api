@@ -18,6 +18,7 @@ class Charge < ApplicationRecord
     package
     percentage
     volume
+    flexible
   ].freeze
 
   enum charge_model: CHARGE_MODELS
