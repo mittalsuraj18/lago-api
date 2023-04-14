@@ -26,8 +26,8 @@ module Charges
             selected_slab = slab
             break
           end
-          selected_slab
         }
+        selected_slab
       end
 
       def compute_slab_amount(amount, selected_slab)
