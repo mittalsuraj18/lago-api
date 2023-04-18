@@ -8,8 +8,7 @@ module BillableMetrics
           .where("#{sanitized_field_name} IS NOT NULL")
 
         result.aggregation = events.count("DISTINCT (#{sanitized_field_name})")
-        result.instant_aggregation = BigDecimal(compute_instant_aggregation(events))
-        result.options = { running_total: running_total(options) }
+        result.options = options
         result.count = events.count
         result.events = events.pluck(Arel.sql("(#{sanitized_field_name})::numeric"))
         result
