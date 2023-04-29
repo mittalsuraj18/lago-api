@@ -63,10 +63,10 @@ module Charges
           to_value = range[:to_value]
           amounts_between_volume_range = aggregation_result.events[from_value..to_value]
 
-          result_amount = 0
           # NOTE: Add flat amount to the total
           result_amount += flat_amount unless units.zero?
           amounts_between_volume_range.each { |amount|
+            amount = amount.nil? ? 0 : amount
             selected_slab = select_slab(amount, amount_slabs)
             result_amount += compute_slab_amount(amount, selected_slab)
           }
