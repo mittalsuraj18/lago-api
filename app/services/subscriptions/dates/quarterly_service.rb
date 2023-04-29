@@ -53,6 +53,10 @@ module Subscriptions
         false
       end
 
+      def compute_previous_beginning_of_period(date)
+        compute_from_date << 3
+      end
+
       def compute_duration(from_date:)
         (compute_to_date - compute_from_date + 1.day).to_i
       end
