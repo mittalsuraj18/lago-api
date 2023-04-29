@@ -21,6 +21,8 @@ class Plan < ApplicationRecord
     weekly
     monthly
     yearly
+    quarterly
+    semiyearly
   ].freeze
 
   enum interval: INTERVALS

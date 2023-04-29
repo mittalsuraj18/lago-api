@@ -1,0 +1,60 @@
+# frozen_string_literal: true
+
+module Subscriptions
+  module Dates
+    class SemiYearlyService < Subscriptions::DatesService
+      def compute_base_date
+        # This is the time date_time when the api was called.
+        total_months_difference = compute_months_difference(subscription_at, billing_date)
+        modulus_months = total_months_difference % 6
+        billing_date << modulus_months
+      end
+
+      def compute_months_difference(subscription_date, current_date)
+        years_difference = subscription_date.year - current_date.year
+        total_months_difference = years_difference * subscription_date.month - current_date.month
+        total_months_difference
+      end
+
+      def compute_base_end_date
+        plus_3_months_date = compute_base_date >> 6
+        end_date = plus_3_months_date - 1
+        end_date
+      end
+
+      def compute_end_date_calendar
+        plus_3_months_date = compute_base_date >> 6
+        plus_3_month_day_1 = Date.new(plus_3_months_date.year, plus_3_months_date.month, 1)
+        plus_3_month_day_1 - 1
+      end
+
+      def compute_from_date
+        subscription.anniversary? ? compute_base_date : Date.new(compute_base_date.year, compute_base_date.month, 1)
+      end
+
+      def compute_to_date
+        subscription.anniversary? ? compute_base_end_date : compute_end_date_calendar
+      end
+
+      def compute_charges_from_date
+        subscription.anniversary? ? compute_base_date : Date.new(compute_base_date.year, compute_base_date.month, 1)
+      end
+
+      def compute_charges_to_date
+        subscription.anniversary? ? compute_base_end_date : compute_end_date_calendar
+      end
+
+      def compute_next_end_of_period
+        compute_to_date
+      end
+
+      def first_month_in_yearly_period?
+        false
+      end
+
+      def compute_duration(from_date:)
+        (compute_to_date - compute_from_date + 1.day).to_i
+      end
+    end
+  end
+end
