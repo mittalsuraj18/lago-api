@@ -39,12 +39,14 @@ class BillingService
       monthly_calendar,
       yearly_with_monthly_charges_calendar,
       yearly_calendar,
+      quarterly_calendar,
 
       # NOTE: Anniversary subscriptions
       weekly_anniversary,
       monthly_anniversary,
       yearly_with_monthly_charges_anniversary,
       yearly_anniversary,
+      quarterly_anniversary
     ]
 
     # NOTE: Prevent double billing by excluding subscription already billed
@@ -84,6 +86,34 @@ class BillingService
       .calendar
       .merge(Plan.monthly)
       .where("DATE_PART('day', (#{today_shift_sql})) = 1", today)
+      .to_sql
+  end
+
+  def quarterly_anniversary
+    months = []
+    (1..12).each { |x| months << x if (today.month - x) % 3 == 0 }
+
+    base_subscription_scope
+      .calendar
+      .merge(Plan.quarterly)
+      .where("DATE_PART('day', (#{today_shift_sql})) = 1", today)
+      .where("DATE_PART('month', (#{Subscription.subscription_at_in_timezone_sql})) IN (?)", months)
+      .to_sql
+  end
+
+  def quarterly_calendar
+    months = []
+    days = [today.day]
+
+    # If we are not in leap year and we are on 28/02 take 29/02 into account
+    days << 29 if !Date.leap?(today.year) && today.day == 28 && today.month == 2
+    (1..12).each { |x| months << x if (today.month - x) % 3 == 0 }
+
+    base_subscription_scope
+      .calendar
+      .merge(Plan.quarterly)
+      .where("DATE_PART('day', (#{Subscription.subscription_at_in_timezone_sql})) IN (?)", days)
+      .where("DATE_PART('month', (#{Subscription.subscription_at_in_timezone_sql})) IN (?)", months)
       .to_sql
   end
 
