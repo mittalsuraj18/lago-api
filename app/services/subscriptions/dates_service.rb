@@ -13,7 +13,7 @@ module Subscriptions
               when :quarterly
                 Subscriptions::Dates::QuarterlyService
               when :semiyearly
-                Subscriptions::Dates::SemiYearlyService
+                Subscriptions::Dates::SemiyearlyService
               else
                 raise(NotImplementedError)
       end

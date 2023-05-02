@@ -2,7 +2,7 @@
 
 module Subscriptions
   module Dates
-    class SemiYearlyService < Subscriptions::DatesService
+    class SemiyearlyService < Subscriptions::DatesService
       def compute_base_date
         # This is the time date_time when the api was called.
         total_months_difference = compute_months_difference(subscription_at, billing_date)
