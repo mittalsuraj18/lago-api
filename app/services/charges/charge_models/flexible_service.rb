@@ -32,10 +32,10 @@ module Charges
 
       def compute_slab_amount(amount, selected_slab)
         result_amount = 0
-        per_unit_amount = BigDecimal(selected_slab[:per_unit_amount] || 0)
+        per_unit_amount = BigDecimal((selected_slab[:per_unit_amount].to_s || 0).to_s)
         result_amount += per_unit_amount
 
-        percentage_rate = BigDecimal(selected_slab[:percentage_rate] || 0)
+        percentage_rate = BigDecimal((selected_slab[:percentage_rate] || 0).to_s)
         percentage_amount = amount * percentage_rate / 100
 
         per_txn_fixed_fee_deductions = selected_slab[:per_txn_fixed_fee_deductions] || 0
@@ -56,7 +56,7 @@ module Charges
 
       def compute_per_txn_aggregation
         ranges.reduce(0) do |result_amount, range|
-          flat_amount = BigDecimal(range[:flat_amount] || 0)
+          flat_amount = BigDecimal((range[:flat_amount] || 0).to_s)
 
           amount_slabs = range[:amount_slabs]
           from_value = range[:from_value]
@@ -80,8 +80,8 @@ module Charges
       def compute_amount
         total = 0.0
         total += compute_per_txn_aggregation
-        total_take_away_percentage = BigDecimal(properties['total_take_away_percentage'] || 100)
-        minimum_commitment = BigDecimal(properties['minimum_commitment'] || 0)
+        total_take_away_percentage = BigDecimal((properties['total_take_away_percentage'] || 100).to_s)
+        minimum_commitment = BigDecimal((properties['minimum_commitment'] || 0).to_s)
         total = total * total_take_away_percentage / 100
         max(minimum_commitment, total)
       end
