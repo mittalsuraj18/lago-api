@@ -65,14 +65,18 @@ module Charges
 
           # NOTE: Add flat amount to the total
           result_amount += flat_amount unless units.zero?
-          amounts_between_volume_range.each { |amount|
-            amount = amount.nil? ? 0 : amount
-            selected_slab = select_slab(amount, amount_slabs)
-            result_amount += compute_slab_amount(amount, selected_slab)
-          }
+
+          unless amounts_between_volume_range.nil?
+            amounts_between_volume_range.each { |amount|
+              amount = amount.nil? ? 0 : amount
+              selected_slab = select_slab(amount, amount_slabs)
+              result_amount += compute_slab_amount(amount, selected_slab)
+            }
+          end
+
           # NOTE: aggregation_result.aggregation is between the bounds of the current range,
           #       we must stop the loop
-          break result_amount if range[:to_value].nil? || range[:to_value] >= units
+          # break result_amount if range[:to_value].nil? || range[:to_value] >= units
           result_amount
         end
       end
