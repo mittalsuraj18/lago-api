@@ -19,6 +19,16 @@ module Invoices
       result.not_found_failure!(resource: 'customer')
     end
 
+    def set_boundaries(from_datetime, to_datetime)
+      @boundaries = {
+          from_datetime: from_datetime,
+          to_datetime: to_datetime,
+          charges_from_datetime: from_datetime,
+          charges_to_datetime: to_datetime,
+          issuing_date: from_datetime,
+        }
+    end
+
     def usage
       return result.not_found_failure!(resource: 'customer') unless @customer
       return result.not_allowed_failure!(code: 'no_active_subscription') if subscription.blank?
@@ -65,7 +75,7 @@ module Invoices
 
     def add_charge_fees
       query = subscription.plan.charges.joins(:billable_metric)
-        .order(Arel.sql('lower(unaccent(billable_metrics.name)) ASC'))
+                          .order(Arel.sql('lower(unaccent(billable_metrics.name)) ASC'))
 
       query.each do |charge|
         fees_result = Fees::ChargeService.new(
@@ -149,6 +159,7 @@ module Invoices
           fee = fees.first
           {
             units: fees.sum(&:units),
+            count: fees.sum(&:events_count),
             amount_cents: fees.sum(&:amount_cents),
             amount_currency: fee.amount_currency,
             charge: {

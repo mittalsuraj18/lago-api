@@ -22,14 +22,56 @@ module Api
         end
       end
 
+      def custom_usage
+        customer_id = params[:customer_external_id]
+        customer = current_organization.customers.find_by(external_id: customer_id)
+        return not_found_error(resource: 'customer') unless customer
+
+        subscriptions = customer.active_subscriptions
+        from_datetime = DateTime.parse(params[:from_datetime])
+        to_datetime = DateTime.parse(params[:to_datetime])
+        result = {
+          "customer":{
+            "name": customer.name,
+            "id": customer.external_id,
+            "from_datetime": from_datetime.to_s,
+            "to_datetime": to_datetime.to_s,
+            "subscriptions": []
+          }
+        }
+        subscriptions.each { |sub|
+          service = ::Invoices::CustomerUsageService.new(
+            nil,
+            customer_id: customer_id,
+            subscription_id: sub.external_id,
+            organization_id: current_organization.id
+          )
+          date_service = Subscriptions::DatesService.new_instance(
+            sub,
+            Time.current,
+            current_usage: true,
+            )
+          service.set_boundaries(from_datetime, to_datetime)
+          subscription_data = {
+            "id": sub.external_id,
+            "name": sub.name,
+            "current_period_start": date_service.from_datetime.to_s,
+            "current_period_end": date_service.to_datetime.to_s,
+          }
+          subscription_data[:usage] = service.usage.usage
+          (result[:subscriptions] ||= []) << subscription_data
+        }
+        render(json: result)
+      end
+
       def current_usage
         service = ::Invoices::CustomerUsageService
-          .new(
-            nil,
-            customer_id: params[:customer_external_id],
-            subscription_id: params[:external_subscription_id],
-            organization_id: current_organization.id,
-          )
+                    .new(
+                      nil,
+                      customer_id: params[:customer_external_id],
+                      subscription_id: params[:external_subscription_id],
+                      organization_id: current_organization.id,
+                    )
         result = service.usage
 
         if result.success?
@@ -47,8 +89,8 @@ module Api
 
       def index
         customers = current_organization.customers
-          .page(params[:page])
-          .per(params[:per_page] || PER_PAGE)
+                                        .page(params[:page])
+                                        .per(params[:per_page] || PER_PAGE)
 
         render(
           json: ::CollectionSerializer.new(
