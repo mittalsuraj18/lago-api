@@ -31,9 +31,13 @@ module Api
         from_datetime = DateTime.parse(params[:from_datetime])
         to_datetime = DateTime.parse(params[:to_datetime])
         result = {
-          "customer":{
+          "customer": {
             "name": customer.name,
             "id": customer.external_id,
+            "legal_name": customer.legal_name,
+            "legal_number": customer.legal_number,
+            "address": customer.address_line1,
+            "lago_url": customer.logo_url,
             "from_datetime": from_datetime.to_s,
             "to_datetime": to_datetime.to_s,
             "subscriptions": []
