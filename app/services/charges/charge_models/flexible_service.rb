@@ -85,9 +85,10 @@ module Charges
         total = 0.0
         total += compute_per_txn_aggregation
         total_take_away_percentage = BigDecimal((properties['total_take_away_percentage'] || 100).to_s)
-        minimum_commitment = BigDecimal((properties['minimum_commitment'] || 0).to_s)
+        # minimum_commitment = BigDecimal((properties['minimum_commitment'] || 0).to_s)
         total = total * total_take_away_percentage / 100
-        max(minimum_commitment, total)
+        # max(minimum_commitment, total)
+        total
       end
 
       def max (a, b)
