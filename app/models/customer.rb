@@ -59,8 +59,9 @@ class Customer < ApplicationRecord
   def active_and_terminated_subscriptions(from_datetime, to_datetime)
     subscriptions.where(status: 1).
       or(subscriptions.where("terminated_at < ?", to_datetime)
-                      .and(subscriptions.where("terminated_at > ?", from_datetime)))
-                 .or(subscriptions.where("terminated_at > ?", to_datetime))
+                      .and(subscriptions.where("terminated_at > ?", from_datetime))
+                      .and(subscriptions.where("started_at is not null")))
+                 .or(subscriptions.where("terminated_at > ?", to_datetime).and(subscriptions.where("started_at is not null")))
                  .order(started_at: :desc)
   end
 
