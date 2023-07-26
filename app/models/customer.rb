@@ -56,6 +56,14 @@ class Customer < ApplicationRecord
     subscriptions.active.order(started_at: :desc)
   end
 
+  def active_and_terminated_subscriptions(from_datetime, to_datetime)
+    subscriptions.where(status: 1).
+      or(subscriptions.where("terminated_at < ?", to_datetime)
+                      .and(subscriptions.where("terminated_at > ?", from_datetime)))
+                 .or(subscriptions.where("terminated_at > ?", to_datetime))
+                 .order(started_at: :desc)
+  end
+
   def applicable_vat_rate
     return vat_rate if vat_rate.present?
 

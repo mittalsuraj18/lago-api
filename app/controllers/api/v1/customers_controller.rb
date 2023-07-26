@@ -26,10 +26,10 @@ module Api
         customer_id = params[:customer_external_id]
         customer = current_organization.customers.find_by(external_id: customer_id)
         return not_found_error(resource: 'customer') unless customer
-
-        subscriptions = customer.active_subscriptions
         from_datetime = DateTime.parse(params[:from_datetime])
         to_datetime = DateTime.parse(params[:to_datetime])
+        # subscriptions = customer.active_subscriptions
+        subscriptions = customer.active_and_terminated_subscriptions(from_datetime, to_datetime)
         result = {
           "customer": {
             "name": customer.name,
