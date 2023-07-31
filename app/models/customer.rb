@@ -60,6 +60,10 @@ class Customer < ApplicationRecord
     subscriptions.where(status: 1).or(subscriptions.where("terminated_at > ? and started_at < ?", from_datetime, to_datetime))
   end
 
+
+  def subscription_by_id(subscription_id)
+    subscriptions.where("external_id = ?", subscription_id)
+  end
   def applicable_vat_rate
     return vat_rate if vat_rate.present?
 

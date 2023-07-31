@@ -29,7 +29,7 @@ module Api
         from_datetime = DateTime.parse(params[:from_datetime])
         to_datetime = DateTime.parse(params[:to_datetime])
         # subscriptions = customer.active_subscriptions
-        subscriptions = customer.active_and_terminated_subscriptions(from_datetime, to_datetime)
+        subscriptions = params[:external_subscription_id].empty? ? customer.active_and_terminated_subscriptions(from_datetime, to_datetime) : customer.subscription_by_id(params[:external_subscription_id])
         result = {
           "customer": {
             "name": customer.name,
@@ -54,7 +54,7 @@ module Api
             sub,
             Time.current,
             current_usage: true,
-            )
+          )
           service.set_boundaries(from_datetime, to_datetime)
           subscription_data = {
             "id": sub.external_id,
