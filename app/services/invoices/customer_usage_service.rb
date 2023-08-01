@@ -37,6 +37,30 @@ module Invoices
       result
     end
 
+    def usage_no_cache
+      return result.not_found_failure!(resource: 'customer') unless @customer
+      return result.not_allowed_failure!(code: 'no_active_subscription') if subscription.blank?
+
+      result.usage = JSON.parse(compute_usage_no_cache, object_class: OpenStruct)
+      result
+    end
+
+
+    def compute_usage_no_cache
+      @invoice = Invoice.new(
+        organization: subscription.organization,
+        customer: subscription.customer,
+        issuing_date: boundaries[:issuing_date],
+        amount_currency: plan.amount_currency,
+        vat_amount_currency: plan.amount_currency,
+        total_amount_currency: plan.amount_currency,
+        )
+
+      add_charge_fees
+      compute_amounts
+
+      format_usage
+    end
     # NOTE: Since computing customer usage could take some time as it as to
     #       loop over a lot of records in database, the result is stored in a cache store.
     #       - The cache expiration is at most, the end date of the billing period

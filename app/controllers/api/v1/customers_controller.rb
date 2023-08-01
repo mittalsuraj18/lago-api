@@ -63,7 +63,7 @@ module Api
             "current_period_start": date_service.from_datetime.to_s,
             "current_period_end": date_service.to_datetime.to_s,
           }
-          subscription_data[:usage] = service.usage.usage
+          subscription_data[:usage] = service.usage_no_cache.usage
           (result[:subscriptions] ||= []) << subscription_data
         }
         render(json: result)
