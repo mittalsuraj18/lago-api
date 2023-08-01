@@ -52,12 +52,13 @@ module Api
           )
           date_service = Subscriptions::DatesService.new_instance(
             sub,
-            Time.current,
+            to_datetime,
             current_usage: true,
           )
           service.set_boundaries(from_datetime, to_datetime)
           subscription_data = {
             "id": sub.external_id,
+            "internal_id": sub.id,
             "name": sub.name,
             "current_period_start": date_service.from_datetime.to_s,
             "current_period_end": date_service.to_datetime.to_s,
