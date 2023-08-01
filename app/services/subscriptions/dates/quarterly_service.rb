@@ -12,9 +12,7 @@ module Subscriptions
       end
 
       def compute_months_difference(subscription_date, current_date)
-        years_difference = subscription_date.year - current_date.year
-        total_months_difference = years_difference * subscription_date.month - current_date.month
-        total_months_difference
+        (current_date.year * 12 + current_date.month) - (subscription_date.year * 12 + subscription_date.month)
       end
 
       def compute_base_end_date
