@@ -55,14 +55,26 @@ module Charges
       end
 
       def compute_per_txn_aggregation
-        ranges.reduce(0) do |result_amount, range|
+        result_amount = 0
+        for range in ranges
           flat_amount = BigDecimal((range[:flat_amount] || 0).to_s)
 
           amount_slabs = range[:amount_slabs]
           from_value = range[:from_value]
           to_value = range[:to_value]
-          amounts_between_volume_range = aggregation_result.events[from_value..to_value]
-
+          unless from_value.nil?
+            from_value = from_value == 0 ? 0 : from_value - 1
+          end
+          amounts_between_volume_range = aggregation_result.events[from_value...to_value]
+          is_cumulative_pricing = ActiveModel::Type::Boolean.new.cast(properties['is_cumulative_pricing'] || false)
+          if is_cumulative_pricing
+            # In cumulative pricing all the data should be part of the range and we should stop iterating pricing
+            # ranges when we reach the right range. Otherwise we might charge twice
+            amounts_between_volume_range = aggregation_result.events[...to_value] # select till the end of to_value ignoring from_value
+            unless amounts_between_volume_range.length() == aggregation_result.events.length()
+              next
+            end
+          end
           # NOTE: Add flat amount to the total
           result_amount += flat_amount unless units.zero?
 
@@ -73,12 +85,12 @@ module Charges
               result_amount += compute_slab_amount(amount, selected_slab)
             }
           end
-
-          # NOTE: aggregation_result.aggregation is between the bounds of the current range,
-          #       we must stop the loop
-          # break result_amount if range[:to_value].nil? || range[:to_value] >= units
-          result_amount
+          if is_cumulative_pricing
+            # Break once the cumulative pricing is done to avoid duplicate counting
+            break
+          end
         end
+        result_amount
       end
 
       def compute_amount
