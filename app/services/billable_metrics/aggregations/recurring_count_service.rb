@@ -10,7 +10,8 @@ module BillableMetrics
         result.aggregation = compute_aggregation.ceil(5)
         result.count = result.aggregation
         result.options = options
-        result.events = events.pluck(Arel.sql("(#{sanitized_field_name})::numeric"))
+        unique_active_counts = persisted.size() + added.size() + added_and_removed.size() + removed.size()
+        result.events = Array.new(unique_active_counts, 1)
         result
       end
 
