@@ -23,7 +23,7 @@
 !/tmp/storage/
 !/tmp/storage/.keep
 
-.env
+env.production
 .byebug_history
 .irb_history
 
