@@ -32,7 +32,7 @@ module Charges
 
       def compute_slab_amount(amount, selected_slab)
         result_amount = 0
-        per_unit_amount = BigDecimal((selected_slab[:per_unit_amount].to_s || 0).to_s)
+        per_unit_amount = BigDecimal((selected_slab[:per_unit_amount] || 0).to_s)
         result_amount += per_unit_amount
 
         percentage_rate = BigDecimal((selected_slab[:percentage_rate] || 0).to_s)
