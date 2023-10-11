@@ -3,6 +3,25 @@
 module Api
   module V1
     class SubscriptionsController < Api::BaseController
+      def active_pending
+        customer = current_organization.customers.find_by(external_id: params[:external_customer_id])
+
+        return not_found_error(resource: 'customer') unless customer
+
+        subscriptions = customer.active_and_pending_subscriptions
+                                .page(params[:page])
+                                .per(params[:per_page] || PER_PAGE)
+
+        render(
+          json: ::CollectionSerializer.new(
+            subscriptions,
+            ::V1::SubscriptionSerializer,
+            collection_name: 'subscriptions',
+            meta: pagination_metadata(subscriptions),
+            ),
+          )
+      end
+
       def create
         customer = Customer.find_or_initialize_by(
           external_id: create_params[:external_customer_id]&.strip,
