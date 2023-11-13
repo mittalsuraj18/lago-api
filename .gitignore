@@ -34,3 +34,4 @@ env.production
 .rsa_public.pem
 LAGO_VERSION
 .idea
+.env
