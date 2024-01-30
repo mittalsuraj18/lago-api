@@ -14,7 +14,8 @@ Rails.application.config.middleware.insert_before(0, Rack::Cors) do
                           [uri.host, uri.port].join(':')
                         end
       if additional_cors
-        origins frontend_origin, additional_cors
+        all_additional_cors = additional_cors.split(",")
+        origins frontend_origin, *all_additional_cors
       else
         origins frontend_origin
       end
