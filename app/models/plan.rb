@@ -23,6 +23,7 @@ class Plan < ApplicationRecord
     yearly
     quarterly
     semiyearly
+    biennial
   ].freeze
 
   enum interval: INTERVALS

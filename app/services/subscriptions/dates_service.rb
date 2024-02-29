@@ -14,6 +14,8 @@ module Subscriptions
                 Subscriptions::Dates::QuarterlyService
               when :semiyearly
                 Subscriptions::Dates::SemiyearlyService
+              when :biennial
+                Subscriptions::Dates::BiennialService
               else
                 raise(NotImplementedError)
       end
