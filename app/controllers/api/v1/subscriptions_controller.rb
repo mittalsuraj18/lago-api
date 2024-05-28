@@ -71,6 +71,22 @@ module Api
         end
       end
 
+      def terminate_pending
+        subscription = current_organization.subscriptions.pending.find_by(external_id: params[:external_id])
+        result = Subscriptions::TerminateService.call(subscription:)
+
+        if result.success?
+          render(
+            json: ::V1::SubscriptionSerializer.new(
+              result.subscription,
+              root_name: 'subscription',
+              ),
+            )
+        else
+          render_error_response(result)
+        end
+      end
+
       def update
         service = Subscriptions::UpdateService.new
 
