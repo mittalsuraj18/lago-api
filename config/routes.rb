@@ -25,7 +25,7 @@ Rails.application.routes.draw do
       resources :subscriptions, only: %i[create update index], param: :external_id
       delete '/subscriptions/:external_id', to: 'subscriptions#terminate', as: :terminate
       get '/subscriptions/active_pending', to: 'subscriptions#active_pending', as: :active_pending, param: :external_id
-      delete '/subscriptions/pending', to: 'subscriptions#terminate_pending', as: :terminate_pending, param: :external_id
+      delete '/subscriptions/pending/:external_id', to: 'subscriptions#terminate_pending', as: :terminate_pending
 
       resources :add_ons, param: :code
       resources :billable_metrics, param: :code
