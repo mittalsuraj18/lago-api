@@ -72,7 +72,9 @@ module Api
       end
 
       def terminate_pending
-        subscription = current_organization.subscriptions.pending.find_by(external_id: params[:external_id])
+        pending_subscription = current_organization.subscriptions.pending.find_by(external_id: params[:external_id])
+        active_subscription = current_organization.subscriptions.active.find_by(external_id: params[:external_id])
+        subscription = (pending_subscription or active_subscription)
         result = Subscriptions::TerminateService.call(subscription:)
 
         if result.success?
