@@ -86,6 +86,7 @@ types:
       currency: optional<string>
       timezone: optional<string>
       billing_configuration: optional<BillingConfigurationCustomer>
+      metadata: optional<list<CustomerMetadataInput>>
 
   CustomerUsage:
     properties:
@@ -100,6 +101,18 @@ types:
       customer: optional<CustomerObject>
 
   BillingConfigurationCustomer: map<string, unknown>
+
+  CustomerMetadataInput:
+    properties:
+      key: string
+      value: string
+      display_in_invoice: optional<boolean>
+
+  CustomerMetadata:
+    properties:
+      key: string
+      value: string
+      display_in_invoice: boolean
 
   CustomerObject:
     properties:
@@ -125,6 +138,7 @@ types:
       timezone: optional<string>
       applicable_timezone: optional<string>
       billing_configuration: optional<BillingConfigurationCustomer>
+      metadata: optional<list<CustomerMetadata>>
 
   CustomerUsageObject:
     properties:

@@ -32,6 +32,7 @@ module Types
       field :applicable_timezone, Types::TimezoneEnum, null: false
 
       field :billing_configuration, Types::Customers::BillingConfiguration, null: true
+      field :metadata, [Types::Metadata::CustomerMetadata], null: true
 
       field :provider_customer, Types::PaymentProviderCustomers::Provider, null: true
       field :subscriptions, [Types::Subscriptions::Object]

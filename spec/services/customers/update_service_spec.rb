@@ -82,6 +82,59 @@ RSpec.describe Customers::UpdateService, type: :service do
       end
     end
 
+    context 'with metadata' do
+      let(:customer) { create(:customer, organization:) }
+      
+      before do
+        create(:customer_metadata, customer:, key: 'existing_key', value: 'old_value')
+        create(:customer_metadata, customer:, key: 'to_be_removed', value: 'remove_me')
+      end
+
+      let(:update_args) do
+        {
+          id: customer.id,
+          metadata: [
+            {
+              key: 'existing_key',
+              value: 'updated_value',
+              display_in_invoice: true,
+            },
+            {
+              key: 'new_key',
+              value: 'new_value',
+              display_in_invoice: false,
+            },
+          ],
+        }
+      end
+
+      it 'updates metadata correctly' do
+        result = customers_service.update(**update_args)
+
+        expect(result).to be_success
+        
+        updated_customer = result.customer
+        metadata = updated_customer.metadata
+
+        aggregate_failures do
+          expect(metadata.count).to eq(2)
+          
+          # Check updated existing metadata
+          existing_metadata = metadata.find_by(key: 'existing_key')
+          expect(existing_metadata.value).to eq('updated_value')
+          expect(existing_metadata.display_in_invoice).to be true
+          
+          # Check new metadata
+          new_metadata = metadata.find_by(key: 'new_key')
+          expect(new_metadata.value).to eq('new_value')
+          expect(new_metadata.display_in_invoice).to be false
+          
+          # Check removed metadata
+          expect(metadata.find_by(key: 'to_be_removed')).to be_nil
+        end
+      end
+    end
+
     context 'with validation error' do
       let(:external_id) { nil }
 
@@ -214,6 +267,82 @@ RSpec.describe Customers::UpdateService, type: :service do
               expect(customer.stripe_customer.provider_customer_id).to be_nil
             end
           end
+        end
+      end
+    end
+
+    context 'with metadata' do
+      let(:customer) { create(:customer, organization:) }
+
+      before do
+        create(:customer_metadata, customer:, key: 'existing_key', value: 'existing_value')
+        create(:customer_metadata, customer:, key: 'key_to_remove', value: 'value_to_remove')
+      end
+
+      context 'when updating metadata' do
+        let(:update_args) do
+          {
+            id: customer.id,
+            metadata: [
+              { key: 'existing_key', value: 'updated_value', display_in_invoice: true },
+              { key: 'new_key', value: 'new_value', display_in_invoice: false }
+            ]
+          }
+        end
+
+        it 'updates existing metadata and adds new metadata' do
+          result = customers_service.update(**update_args)
+
+          expect(result).to be_success
+          
+          metadata = result.customer.metadata.reload
+          expect(metadata.count).to eq(2)
+          
+          existing = metadata.find_by(key: 'existing_key')
+          expect(existing.value).to eq('updated_value')
+          expect(existing.display_in_invoice).to be_truthy
+          
+          new_metadata = metadata.find_by(key: 'new_key')
+          expect(new_metadata.value).to eq('new_value')
+          expect(new_metadata.display_in_invoice).to be_falsey
+          
+          expect(metadata.find_by(key: 'key_to_remove')).to be_nil
+        end
+      end
+
+      context 'when clearing all metadata with empty array' do
+        let(:update_args) do
+          {
+            id: customer.id,
+            metadata: []
+          }
+        end
+
+        it 'removes all metadata' do
+          expect(customer.metadata.count).to eq(2)
+          
+          result = customers_service.update(**update_args)
+
+          expect(result).to be_success
+          expect(result.customer.metadata.reload.count).to eq(0)
+        end
+      end
+
+      context 'when metadata is not provided' do
+        let(:update_args) do
+          {
+            id: customer.id,
+            name: 'Updated name'
+          }
+        end
+
+        it 'does not modify existing metadata' do
+          expect(customer.metadata.count).to eq(2)
+          
+          result = customers_service.update(**update_args)
+
+          expect(result).to be_success
+          expect(result.customer.metadata.reload.count).to eq(2)
         end
       end
     end

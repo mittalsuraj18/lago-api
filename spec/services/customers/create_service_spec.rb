@@ -85,6 +85,51 @@ RSpec.describe Customers::CreateService, type: :service do
       end
     end
 
+    context 'with metadata' do
+      let(:create_args) do
+        {
+          external_id:,
+          name: 'Foo Bar',
+          metadata: [
+            {
+              key: 'tax_id',
+              value: '123456789',
+              display_in_invoice: true,
+            },
+            {
+              key: 'internal_note',
+              value: 'VIP customer',
+              display_in_invoice: false,
+            },
+          ],
+        }
+      end
+
+      it 'creates a customer with metadata' do
+        result = customers_service.create_from_api(
+          organization:,
+          params: create_args,
+        )
+
+        expect(result).to be_success
+
+        customer = result.customer
+        metadata = customer.metadata
+
+        aggregate_failures do
+          expect(metadata.count).to eq(2)
+
+          tax_id_metadata = metadata.find_by(key: 'tax_id')
+          expect(tax_id_metadata.value).to eq('123456789')
+          expect(tax_id_metadata.display_in_invoice).to be true
+
+          internal_note_metadata = metadata.find_by(key: 'internal_note')
+          expect(internal_note_metadata.value).to eq('VIP customer')
+          expect(internal_note_metadata.display_in_invoice).to be false
+        end
+      end
+    end
+
     context 'with premium features' do
       around { |test| lago_premium!(&test) }
 

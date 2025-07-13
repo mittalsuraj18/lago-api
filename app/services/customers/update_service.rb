@@ -57,6 +57,11 @@ module Customers
         customer.external_id = args[:external_id] if customer.editable? && args.key?(:external_id)
         customer.save!
 
+        # NOTE: handle metadata updates
+        if args.key?(:metadata) && args[:metadata].is_a?(Array)
+          update_metadata(customer, args[:metadata])
+        end
+
         # NOTE: if payment provider is updated, we need to create/update the provider customer
         payment_provider = old_payment_provider || customer.payment_provider
         create_or_update_provider_customer(customer, payment_provider, args[:provider_customer])
@@ -118,6 +123,25 @@ module Customers
         return unless handle_provider_customer
 
         update_gocardless_customer(customer, billing_configuration)
+      end
+    end
+
+    def update_metadata(customer, metadata_params)
+      # Get existing metadata keys
+      existing_keys = customer.metadata.pluck(:key)
+      new_keys = metadata_params.map { |m| m[:key] }.compact
+
+      # Delete metadata that's not in the new list
+      customer.metadata.where.not(key: new_keys).destroy_all
+
+      # Create or update metadata
+      metadata_params.each do |metadata|
+        next unless metadata[:key].present?
+
+        metadata_record = customer.metadata.find_or_initialize_by(key: metadata[:key])
+        metadata_record.value = metadata[:value]
+        metadata_record.display_in_invoice = metadata[:display_in_invoice] || false
+        metadata_record.save!
       end
     end
 

@@ -32,6 +32,7 @@ module Mutations
       argument :provider_customer, Types::PaymentProviderCustomers::ProviderInput, required: false
 
       argument :billing_configuration, Types::Customers::BillingConfigurationInput, required: false
+      argument :metadata, [Types::Metadata::CustomerMetadataInput], required: false
 
       type Types::Customers::Object
 

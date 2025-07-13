@@ -26,6 +26,7 @@ module V1
         timezone: model.timezone,
         applicable_timezone: model.applicable_timezone,
         billing_configuration: billing_configuration,
+        metadata: metadata,
       }
     end
 
@@ -48,6 +49,16 @@ module V1
       end
 
       configuration
+    end
+
+    def metadata
+      model.metadata.map do |metadata|
+        {
+          key: metadata.key,
+          value: metadata.value,
+          display_in_invoice: metadata.display_in_invoice,
+        }
+      end
     end
   end
 end

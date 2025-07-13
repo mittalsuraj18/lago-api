@@ -165,7 +165,9 @@ module Api
             :vat_rate,
             :document_locale,
           ],
-        )
+        ).tap do |allowed|
+          allowed[:metadata] = params[:customer][:metadata] if params[:customer][:metadata].is_a?(Array)
+        end
       end
     end
   end

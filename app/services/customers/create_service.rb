@@ -38,6 +38,11 @@ module Customers
       # NOTE: handle configuration for configured payment providers
       handle_api_billing_configuration(customer, params, new_customer)
 
+      # NOTE: handle metadata
+      if params[:metadata].present? && params[:metadata].is_a?(Array)
+        create_metadata(customer, params[:metadata])
+      end
+
       result.customer = customer
       track_customer_created(customer)
       result
@@ -152,6 +157,18 @@ module Customers
       )
 
       create_result.raise_if_error!
+    end
+
+    def create_metadata(customer, metadata_params)
+      metadata_params.each do |metadata|
+        next unless metadata[:key].present?
+
+        customer.metadata.create!(
+          key: metadata[:key],
+          value: metadata[:value],
+          display_in_invoice: metadata[:display_in_invoice] || false,
+        )
+      end
     end
 
     def track_customer_created(customer)
