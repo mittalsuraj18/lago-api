@@ -1662,6 +1662,7 @@ input CreateCustomerInput {
   legalName: String
   legalNumber: String
   logoUrl: String
+  metadata: [CustomerMetadataInput!]
   name: String!
   paymentProvider: ProviderTypeEnum
   phone: String
@@ -2566,6 +2567,7 @@ type Customer {
   legalName: String
   legalNumber: String
   logoUrl: String
+  metadata: [CustomerMetadata!]
   name: String
   paymentProvider: ProviderTypeEnum
   phone: String
@@ -2645,6 +2647,7 @@ type CustomerDetails {
   legalName: String
   legalNumber: String
   logoUrl: String
+  metadata: [CustomerMetadata!]
   name: String
   paymentProvider: ProviderTypeEnum
   phone: String
@@ -2667,6 +2670,20 @@ type CustomerDetails {
   url: String
   vatRate: Float
   zipcode: String
+}
+
+type CustomerMetadata {
+  createdAt: ISO8601DateTime!
+  displayInInvoice: Boolean!
+  key: String!
+  updatedAt: ISO8601DateTime!
+  value: String!
+}
+
+input CustomerMetadataInput {
+  displayInInvoice: Boolean
+  key: String!
+  value: String!
 }
 
 type CustomerUsage {
@@ -4965,6 +4982,7 @@ input UpdateCustomerInput {
   legalName: String
   legalNumber: String
   logoUrl: String
+  metadata: [CustomerMetadataInput!]
   name: String!
   paymentProvider: ProviderTypeEnum
   phone: String
